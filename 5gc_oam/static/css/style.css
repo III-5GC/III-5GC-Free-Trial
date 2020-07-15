@@ -1,0 +1,20 @@
+.container {
+  width: 900px;
+  margin: 0 auto;
+}
+.container h1 {
+  margin: 20px;
+  text-align: center;
+}
+.container form {
+  padding: 20px;
+  background: #EBF0F4;
+  border-radius: 10px;
+}
+.help-block.error {
+  margin-bottom: 5px;
+}
+.messages{
+  margin: 10px 5px;
+  color: #dc3545
+}

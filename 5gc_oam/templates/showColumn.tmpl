@@ -1,0 +1,72 @@
+{%- macro show_layout(layout, config) -%}
+    {%- for key, value in layout.items() -%}
+        {%- if ( ('type' in value) and ('group' == value['type']) ) -%}
+            {%- if ( ('list' in value) and ('true' == value['list']) ) -%}
+                {{ show_group_list_column(key, value, config[key]) }}
+            {%- else -%}
+                {{ show_group_column(key, value, config[key]) }}
+            {%- endif -%}
+        {%- else -%}
+          {%- if key in config -%}
+            {{ show_column(key, value, config[key]) }}
+          {%- else -%}
+            {# {{ show_column(key, value) }} #}
+          {%- endif -%}
+        {%- endif -%}
+    {%- endfor -%}
+{%- endmacro -%}
+
+{%- macro show_column(key, value, setting='NULL') -%}
+<div class="form-group row">
+    <label class="col-sm-4 col-form-label">{{ key }}</label>
+    <div class="col-sm-8">
+        {%- if ("NULL" != setting) -%}
+            <input type="text" readonly class="form-control-plaintext" value="{{ setting }}">
+        {%- else -%}
+            <input type="text" readonly class="form-control-plaintext" value="{{ value['default'] }}">
+        {%- endif -%}
+    </div>
+</div>
+{%- endmacro -%}
+
+{%- macro show_group_column(key, value, config) -%}
+<div class="form-group" id="{{ key }}accordion">
+  <div class="card">
+    <div class="card-header">
+        <a class="card-link" data-toggle="collapse" href="#collapse{{ key }}">
+        <label for="{{ key }}">{{ value['title'] }}</label>
+      </a>
+    </div>
+    <div id="collapse{{ key }}" class="collapse show" data-parent="#{{ key }}accordion">
+      <div class="card-body">
+        {%- if 'discription' in value -%}
+            <small class="form-text text-muted">{{ value['discription'] }}</small>
+        {%- endif -%}
+        {{- show_layout(value['data'], config) -}}
+      </div>
+    </div>
+  </div>
+</div>
+{%- endmacro -%}
+
+{%- macro show_group_list_column(key, value, config) -%}
+<div class="form-group" id="{{ key }}accordion">
+    <div class="card">
+        <div class="card-header">
+            <a class="card-link" data-toggle="collapse" href="#collapse{{ key }}">
+                <label for="{{ key }}">{{ value['title'] }}</label>
+            </a>
+        </div>
+        <div id="collapse{{ key }}" class="collapse show" data-parent="#{{ key }}accordion">
+            <div class="card-body">
+                {%- if 'discription' in value -%}
+                    <small class="form-text text-muted">{{ value['discription'] }}</small>
+                {%- endif -%}
+                {%- for listConfig in config -%}
+                    {{- show_layout(value['data'], listConfig) -}}
+                {%- endfor -%}
+            </div>
+        </div>
+    </div>
+</div>
+{%- endmacro -%}

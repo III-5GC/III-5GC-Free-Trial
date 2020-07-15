@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+	<link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+	<link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+
+    <title>資策會5G核心網路組態設定</title>
+  </head>
+  <body>
+<!--
+    <form>
+      <div class="form-group row">
+        <label for="staticEmail" class="col-sm-2 col-form-label">Email</label>
+        <div class="col-sm-10">
+          <input type="text" readonly class="form-control-plaintext" id="staticEmail" value="email@example.com">
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="inputPassword" class="col-sm-2 col-form-label">Password</label>
+        <div class="col-sm-10">
+          <input type="password" class="form-control" id="inputPassword" placeholder="Password">
+        </div>
+      </div>
+    </form>
+
+
+        <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email">
+        <input class="form-control" type="text" placeholder="Readonly input here…" readonly>
+        <select class="form-control" id="exampleFormControlSelect1">
+          <option>1</option>
+          <option>2</option>
+          <option>3</option>
+          <option>4</option>
+          <option>5</option>
+        </select>
+      <div class="form-group">
+        <label for="exampleInputPassword1">Password</label>
+        <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
+      </div>
+      <div class="form-check">
+        <input type="checkbox" class="form-check-input" id="exampleCheck1">
+        <label class="form-check-label" for="exampleCheck1">Check me out</label>
+      </div>
+
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          Dropdown link
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+          <a class="dropdown-item" href="#">Action</a>
+          <a class="dropdown-item" href="#">Another action</a>
+          <a class="dropdown-item" href="#">Something else here</a>
+        </div>
+      </li>
+-->
+    <div class="container">
+      <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="./">
+          <img src="{{ url_for('static', filename='img/logo.png') }}" width="221" height="29" class="d-inline-block align-top" alt="">
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+          <div class="navbar-nav">
+            <a class="nav-item nav-link" href="./">目前組態</a>
+            <a class="nav-item nav-link active" href="#">組態設定<span class="sr-only">(current)</span></a>
+            <a class="nav-item nav-link disabled" href="#">Help(施工中)</a>
+          </div>
+        </div>
+      </nav>
+  
+      <h6> &nbsp; </h6>
+      {% from 'editColumn.tmpl' import show_layout, get_layout_constraints, set_layout_list_action %}
+
+      <form id="main" method='post'>
+          {{ show_layout(layout, config) }}
+        <button type="submit" class="btn btn-primary">Submit</button>
+      </form>
+    </div>
+
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/popper.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/underscore-min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/moment.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/validate.min.js') }}"></script>
+    <script type="text/javascript">
+        {# Ref --> https://ithelp.ithome.com.tw/articles/10209129 #}
+        {# Ref --> http://validatejs.org/ #}
+
+        (function() {
+
+            var constraints = {
+                {{ get_layout_constraints(layout) }}
+            };
+
+            // Hook up the form so we can prevent it from being posted
+            var form = document.querySelector("form#main");
+            form.addEventListener("submit", function(ev) {
+                if (handleFormSubmit(form)) {
+                    ev.preventDefault();
+                }
+            });
+            
+            // 監聽 input 值改變的狀況
+            var inputs = document.querySelectorAll("input, textarea, select")
+            for (var i = 0; i < inputs.length; ++i) {
+                inputs.item(i).addEventListener("change", function(ev) {
+                    var errors = validate(form, constraints) || {};
+                    showErrorsForInput(this, errors[this.name])
+                });
+            }
+
+            // 沒有錯誤就顯示成功傳送
+            function handleFormSubmit(form, input) {
+                var errors = validate(form, constraints);// validate the form aainst the constraints
+                showErrors(form, errors || {}); // then we update the form to reflect the results
+                if (!errors) {
+                    showSuccess();
+                }
+                return errors;
+            }
+
+            // Updates the inputs with the validation errors
+            function showErrors(form, errors) {
+                // We loop through all the inputs and show the errors for that input
+                _.each(form.querySelectorAll("input[name], select[name]"), function(input) {
+                    // Since the errors can be null if no errors were found we need to handle
+                    // that
+                    showErrorsForInput(input, errors && errors[input.name]);
+                });
+            }
+
+            // Shows the errors for a specific input
+            function showErrorsForInput(input, errors) {
+                // This is the root of the input
+                var formGroup = closestParent(input.parentNode, "form-group")
+                    // Find where the error messages will be insert into
+                    , messages = formGroup.querySelector(".messages");
+                // First we remove any old messages and resets the classes
+                resetFormGroup(formGroup);
+                // If we have errors
+                if (errors) {
+                    // we first mark the group has having errors
+                    formGroup.classList.add("has-error");
+                    // then we append all the errors
+                    _.each(errors, function(error) {
+                        addError(messages, error);
+                    });
+                    input.classList.remove("is-valid");
+                    input.classList.add("is-invalid");
+                } else {
+                    // otherwise we simply mark it as success
+                    formGroup.classList.add("has-success");
+                    input.classList.remove("is-invalid");
+                    input.classList.add("is-valid");
+                }
+            }
+
+            // Recusively finds the closest parent that has the specified class
+            function closestParent(child, className) {
+                if (!child || child == document) {
+                    return null;
+                }
+                if (child.classList.contains(className)) {
+                    return child;
+                } else {
+                    return closestParent(child.parentNode, className);
+                }
+            }
+
+            function resetFormGroup(formGroup) {
+                // Remove the success and error classes
+                formGroup.classList.remove("has-error");
+                formGroup.classList.remove("has-success");
+                // and remove any old messages
+                _.each(formGroup.querySelectorAll(".help-block.error"), function(el) {
+                    el.parentNode.removeChild(el);
+                });
+            }
+
+            // Adds the specified error with the following markup
+            // <p class="help-block error">[message]</p>
+            function addError(messages, error) {
+                var block = document.createElement("p");
+                block.classList.add("help-block");
+                block.classList.add("error");
+                //block.classList.add("invalid-feedback");
+                block.innerText = error;
+                console.log(block);
+                messages.appendChild(block);
+            }
+
+            function showSuccess() {
+                alert("Success!"); // We made it \:D/
+            }
+
+            $(document).
+              {{ set_layout_list_action(layout) }}
+              //on('click', '.btn-add-SliceList', function(e) {
+              //e.preventDefault();
+
+              //var dynaForm = $('.dynamic-wrap-SliceList'),
+              //  currentEntry = $(this).parents('.entry:first'),
+              //  newEntry = $(currentEntry.clone()).appendTo(dynaForm);
+
+              //newEntry.find('input').val('');
+              //dynaForm.find('.entry:not(:last) .btn-add-SliceList')
+              //  .removeClass('btn-add-SliceList').addClass('btn-remove')
+              //  .removeClass('btn-success').addClass('btn-danger')
+              //  .html('Remove');
+              //}).
+              on('click', '.btn-remove', function(e) {
+              $(this).parents('.entry:first').remove();
+
+              e.preventDefault();
+              return false;
+            });            
+
+            $(".dropdown-menu").on('click', 'a.dropdown-item', function(){
+                var idx = $(this).parent().children()[0].value;
+                $(".btn.btn-outline-secondary.dropdown-toggle.opopc" + idx + ":first-child").text($(this).text());
+                $(".btn.btn-outline-secondary.dropdown-toggle.opopc" + idx + ":first-child").val($(this).text());
+                if('OPC' == $(this).text())
+                {
+	                $("input.form-control.opopc" + idx).attr("name", "opc" + idx);
+                }
+                else
+                {
+	                $("input.form-control.opopc" + idx).attr("name", "op" + idx);
+                }
+            });
+
+            {#
+            {%- for idx in range(1, config['UE_INFO']|length + 1) -%}
+                // switch to opc
+                $(".dropdown-menu").on('click', 'a.dropdown-item.opckey{{ idx }}', function(){
+                    $(".btn.btn-outline-secondary.dropdown-toggle.opopckey{{ idx }}:first-child").text($(this).text());
+                    $(".btn.btn-outline-secondary.dropdown-toggle.opopckey{{ idx }}:first-child").val($(this).text());
+	                $("input.form-control.opopckey{{ idx }}").attr("name", "opckey{{ idx }}");
+                });
+                // switch to op
+                $(".dropdown-menu").on('click', 'a.dropdown-item.opkey{{ idx }}', function(){
+                    $(".btn.btn-outline-secondary.dropdown-toggle.opopckey{{ idx }}:first-child").text($(this).text());
+                    $(".btn.btn-outline-secondary.dropdown-toggle.opopckey{{ idx }}:first-child").val($(this).text());
+                    $("input.form-control.opopckey{{ idx }}").attr("name", "opkey{{ idx }}");
+                });
+            {%- endfor -%}
+                #}
+
+
+        })();
+
+    </script>
+  </body>
+</html>

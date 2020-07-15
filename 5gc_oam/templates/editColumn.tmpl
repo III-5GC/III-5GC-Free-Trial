@@ -1,0 +1,320 @@
+{%- macro show_layout(layout, config, postfix='') -%}
+    {%- for key, value in layout.items() -%}
+        {%- if ( ('type' in value) and ('group' == value['type']) ) -%}
+            {%- if ( ('title' in value) and ('UE Key' == value['title']) ) -%}
+                {{ show_ue_key(key, value, config[key], postfix=postfix) }}
+            {%- elif ( ('list' in value) and ('true' == value['list']) ) -%}
+                {{ show_group_list_column(key, value, config[key]) }}
+            {%- else -%}
+                {{ show_group_column(key, value, config[key], postfix=postfix) }}
+            {%- endif -%}
+        {%- else -%}
+          {%- if (key in config) and ('' != config[key]) -%}
+            {{ show_column(key, value, config[key], postfix=postfix) }}
+          {%- else -%}
+            {{ show_column(key, value, postfix=postfix) }}
+          {%- endif -%}
+        {%- endif -%}
+    {%- endfor -%}
+{%- endmacro -%}
+
+{%- macro show_column(key, value, setting='NULL', postfix='') -%}
+<div class="form-group">
+  <label for="{{ key }}">{{ value['title'] }}</label>
+  {%- if 'discription' in value -%}
+      <small class="form-text text-muted">{{ value['discription'] }}</small>
+  {%- endif -%}
+  {%- if ("NULL" != setting) -%}
+      {%- if ('type' in value) and (value['type'] == 'num') -%}
+          <input name="{{ key }}{{ postfix }}" class="form-control" type="number" value="{{ setting }}">
+      {%- else -%}
+          <input name="{{ key }}{{ postfix }}" class="form-control" type="text" value="{{ setting }}">
+      {%- endif -%}
+  {%- else -%}
+      {%- if ('type' in value) and (value['type'] == 'num') -%}
+          <input name="{{ key }}{{ postfix }}" class="form-control" type="number" placeholder="{{ value['default'] }}">
+      {%- else -%}
+          <input name="{{ key }}{{ postfix }}" class="form-control" type="text" placeholder="{{ value['default'] }}">
+      {%- endif -%}
+  {%- endif -%}
+  <div class="messages"></div>
+  <!--
+  <p> &nbsp; </p>
+  -->
+</div>
+{%- endmacro -%}
+
+{%- macro show_group_column(key, value, config, postfix='') -%}
+<div class="form-group" id="{{ key }}{{ postfix }}accordion">
+  <div class="card">
+    <div class="card-header">
+        <a class="card-link" data-toggle="collapse" href="#{{ key }}{{ postfix }}collapse">
+            <label for="{{ key }}{{ postfix }}">{{ value['title'] }}</label>
+        </a>
+    </div>
+    <div id="{{ key }}{{ postfix }}collapse" class="collapse show" data-parent="#{{ key }}{{ postfix }}accordion">
+      <div class="card-body">
+        {%- if 'discription' in value -%}
+            <small class="form-text text-muted">{{ value['discription'] }}</small>
+        {%- endif -%}
+        {{- show_layout(value['data'], config, postfix=postfix) -}}
+      </div>
+    </div>
+  </div>
+</div>
+{%- endmacro -%}
+
+{%- macro show_group_list_column(key, value, config) -%}
+<div class="form-group" id="{{ key }}accordion">
+    <div class="card">
+        <div class="card-header">
+            <a class="card-link" data-toggle="collapse" href="#collapse{{ key }}">
+                <label for="{{ key }}">{{ value['title'] }}</label>
+            </a>
+        </div>
+        <div id="collapse{{ key }}" class="collapse show" data-parent="#{{ key }}accordion">
+            <div class="card-body">
+                {%- if 'discription' in value -%}
+                    <small class="form-text text-muted">{{ value['discription'] }}</small>
+                {%- endif -%}
+                <div class="dynamic-wrap-{{ key }}">
+                    <input type="hidden" id="{{ key }}MaxLen" name="{{ key }}MaxLen" value="{{ config|length }}">
+                    <div name="append-zone-{{ key }}">
+                        {%- for listConfig in config -%}
+                            {{- show_list_item(key, value['data'], listConfig, loop.index, loop.index == config|length) -}}
+                        {%- endfor -%}
+                    </div>
+                    <span class="input-group-btn">
+                        <button class="btn btn-success btn-add-{{ key }}" type="button">
+                            Add
+                        </button>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{%- endmacro -%}
+
+{%- macro show_list_item(key, layout, setting, index, last) -%}
+<div class = "entry input-group">
+    <div class="form-group">
+        {%- for key1, value1 in layout.items() -%}
+            <label for="{{ key1 }}">{{ value1['title'] }}</label>
+            {%- if 'discription' in value1 -%}
+                <small class="form-text text-muted">{{ value1['discription'] }}</small>
+            {%- endif -%}
+
+            
+            {%- if (('type' in value1) and ('group' == value1['type'])) -%}
+                {%- if ( ('title' in value1) and ('UE Key' == value1['title']) ) -%}
+                    {{ show_ue_key(key1, value1, setting[key1], postfix=key1 + index|string) }}
+                {%- else -%}
+                    {{- show_group_column(key1, value1, setting[key1], postfix=key1 + index|string) -}}
+                {%- endif -%}
+            {%- else -%}
+                {%- if key1 in setting -%}
+                    {%- if ('type' in value1) and (value1['type'] == 'num') -%}
+                        <input name="{{ key1 }}{{index}}" class="form-control" type="number" value="{{ setting[key1] }}">
+                    {%- else -%}
+                        <input name="{{ key1 }}{{index}}" class="form-control" type="text" value="{{ setting[key1] }}">
+                    {%- endif -%}
+                {%- else -%}
+                    {%- if ('type' in value) and (value['type'] == 'num') -%}
+                        <input name="{{ key1 }}{{index}}" class="form-control" type="number" placeholder="{{ value1['default'] }}">
+                    {%- else -%}
+                        <input name="{{ key1 }}{{index}}" class="form-control" type="text" placeholder="{{ value1['default'] }}">
+                    {%- endif -%}
+                {%- endif -%}
+            {%- endif -%}
+
+            <div class="messages"></div>
+        {%- endfor -%}
+        <span class="input-group-btn">
+{#
+            {%- if true == last -%}
+                <button class="btn btn-success btn-add-{{ key }}" type="button">
+                    Add
+                </button>
+            {%- else -%}
+#}
+                <button class="btn btn-danger btn-remove" type="button">
+                    Remove
+                </button>
+{#
+            {%- endif -%}
+#}
+        </span>
+    </div>
+</div>
+{%- endmacro -%}
+
+
+{%- macro get_layout_constraints(layout) -%}
+    {%- for key, value in layout.items() -%}
+        {%- if ( ('type' in value) and ('group' == value['type']) ) -%}
+            {{ get_layout_constraints(value['data']) }}
+        {%- else -%}
+          {%- if 'validate' in value -%}
+            {{ get_column_constraints(key, value['validate']) }}
+          {%- endif -%}
+        {%- endif -%}
+    {%- endfor -%}
+{%- endmacro -%}
+
+{%- macro get_column_constraints(key, validate) -%}
+    "{{ key }}": {
+        {{- get_colume_format_constraints(validate) -}}
+        {{- get_colume_length_constraints(validate) -}}
+        {{- get_colume_equality_constraints(validate) -}}
+        {{- get_colume_numericality_constraints(validate) -}}
+    },
+{%- endmacro -%}
+
+{%- macro get_colume_format_constraints(validate) -%}
+    {%- if 'format' in validate -%}
+        format: {
+            pattern: "{{ validate['format']['pattern'] }}",
+            message: "{{ validate['format']['msg'] }}",
+        },
+    {%- endif -%}
+{%- endmacro -%}
+
+{%- macro get_colume_length_constraints(validate) -%}
+    {%- if 'length' in validate -%}
+        length: {
+            {%- if 'min' in validate['length'] -%}
+                minimum: {{ validate['length']['min'] }},
+            {%- endif -%}
+            {%- if 'max' in validate['length'] -%}
+                maximum: {{ validate['length']['max'] }},
+            {%- endif -%}
+            {%- if 'is' in validate['length'] -%}
+                is: {{ validate['length']['is'] }},
+            {%- endif -%}
+            message: "{{ validate['length']['msg'] }}",
+        },
+    {%- endif -%}
+{%- endmacro -%}
+
+{%- macro get_colume_equality_constraints(validate) -%}
+    {%- if 'equality' in validate -%}
+        equality: {
+            attribute: "{{ validate['equality']['attribute']}}",
+            message: "{{ validate['equality']['msg'] }}",
+            {%- if 'comparator' in validate['equality'] -%}
+                comparator: {{ validate['equality']['comparator'] }}
+            {%- endif -%}
+        },
+    {%- endif -%}
+{%- endmacro -%}
+
+{%- macro get_colume_numericality_constraints(validate) -%}
+    {%- if 'numericality' in validate -%}
+        numericality: {
+            {%- if 'onlyInteger' in validate['numericality'] -%}
+                onlyInteger: "{{ validate['numericality']['onlyInteger'] }}",
+            {%- endif -%}
+            {%- if 'greaterThanOrEqualTo' in validate['numericality'] -%}
+                greaterThanOrEqualTo: {{ validate['numericality']['greaterThanOrEqualTo'] }},
+            {%- endif -%}
+            {%- if 'lessThanOrEqualTo' in validate['numericality'] -%}
+                lessThanOrEqualTo: {{ validate['numericality']['lessThanOrEqualTo'] }},
+            {%- endif -%}
+            {%- if 'notInteger' in validate['numericality'] -%}
+                notInteger: "{{ validate['numericality']['notInteger'] }}",
+            {%- endif -%}
+            {%- if 'notGreaterThanOrEqualTo' in validate['numericality'] -%}
+                notGreaterThanOrEqualTo: "{{ validate['numericality']['notGreaterThanOrEqualTo'] }}",
+            {%- endif -%}
+            {%- if 'notLessThanOrEqualTo' in validate['numericality'] -%}
+                notLessThanOrEqualTo: "{{ validate['numericality']['notLessThanOrEqualTo'] }}",
+            {%- endif -%}
+        },
+    {%- endif -%}
+{%- endmacro -%}
+
+{%- macro set_layout_list_action(layout) -%}
+    {%- for key, value in layout.items() -%}
+        {%- if ( ('type' in value) and ('group' == value['type']) ) -%}
+            {{ set_layout_list_action(value['data']) }}
+            {%- if (('list' in value) and ('true' == value['list'])) -%}
+                {{ set_list_action(key, value['data']) }}
+            {%- endif -%}
+        {%- endif -%}
+    {%- endfor -%}
+{%- endmacro -%}
+
+{%- macro set_list_action(key, value) -%}
+    on('click', '.btn-add-{{ key }}', function(e) {
+        e.preventDefault();
+        
+        var dynaForm = $('.dynamic-wrap-{{ key }}'),
+            appendZone = dynaForm.find("div[name='append-zone-{{ key }}']"),
+            currentEntry = dynaForm.find('.entry:first'),
+            newEntry = $(currentEntry.clone()).appendTo(appendZone);
+        
+           // currentEntry = $(this).parents('.entry:first'),
+           // newEntry = $(currentEntry.clone()).appendTo(dynaForm);
+
+        newEntry.find('input').val('');
+        //newEntry.find('input').val('').attr('name', "Test" + maxIdxAry['{{ key }}']);
+        var len = Number(dynaForm.find("input[name^='{{ key }}']").val());
+        dynaForm.find("input[name^='{{ key }}']").val(String(len+1));
+
+        {%- for key1 in value.keys() -%}
+            newEntry.find("input[name^='{{ key1 }}']").attr('name', "{{ key1 }}" + String(len+1));
+        {%- endfor -%}
+        
+        //.attr('name', "{{ key }}" + maxIdxAry['{{ key }}']);
+        //dynaForm.find('.entry:not(:last) .btn-add-{{ key }}')
+        //.removeClass('btn-add-{{ key }}').addClass('btn-remove')
+        //    .removeClass('btn-success').addClass('btn-danger')
+        //    .html('Remove');
+    }).
+{%- endmacro -%}
+
+{# customize layout for UE Key, modify from show_group_column #}
+{%- macro show_ue_key(key, value, config, postfix='') -%}
+<div class="form-group" id="{{ key }}{{ postfix }}accordion">
+  <div class="card">
+    <div class="card-header">
+        <a class="card-link" data-toggle="collapse" href="#{{ key }}{{ postfix }}collapse">
+            <label for="{{ key }}{{ postfix }}">{{ value['title'] }}</label>
+        </a>
+    </div>
+    <div id="{{ key }}{{ postfix }}collapse" class="collapse show" data-parent="#{{ key }}{{ postfix }}accordion">
+      <div class="card-body">
+        {# k #}
+        <div class="input-group mb-3">
+          <div class="input-group-prepend">
+            <button class="btn btn-outline-secondary k{{ postfix }}" type="button">K</button>
+          </div>
+          <input name="k{{ postfix }}" type="text" class="form-control" aria-label="Text input with dropdown button" value="{{ config['k'] }}">
+        </div>
+        {# op opc #}
+        <div class="input-group mb-3">
+          <div class="input-group-prepend">
+            {%- if ('op' in config) and (config['op'] != '') -%}
+                <button class="btn btn-outline-secondary dropdown-toggle opopc{{ postfix }}" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">OP</button>
+            {%- else -%}
+                <button class="btn btn-outline-secondary dropdown-toggle opopc{{ postfix }}" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">OPC</button>
+            {%- endif -%}
+            <div class="dropdown-menu">
+              <input type="hidden" class="opopcIdx" value="{{ postfix }}">
+              <a class="dropdown-item op{{ postfix }}">OP</a>
+              <a class="dropdown-item opc{{ postfix }}">OPC</a>
+            </div>
+          </div>
+          {%- if ('op' in config) and (config['op'] != '') -%}
+              <input name="op{{ postfix }}" type="text" class="form-control opopc{{ postfix }}" aria-label="Text input with dropdown button" value="{{ config['op'] }}">
+          {%- else -%}
+              <input name="opc{{ postfix }}" type="text" class="form-control opopc{{ postfix }}" aria-label="Text input with dropdown button" value="{{ config['opc'] }}">
+          {%- endif -%}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{%- endmacro -%}
+

@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+	<link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+	<link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+
+    <title>資策會5G核心網路組態設定</title>
+  </head>
+  <body>
+    <div class="container">
+      <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="#">
+          <img src="{{ url_for('static', filename='img/logo.png') }}" width="221" height="29" class="d-inline-block align-top" alt="">
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+          <div class="navbar-nav">
+            <a class="nav-item nav-link active" href="#">目前組態<span class="sr-only">(current)</span></a>
+            <a class="nav-item nav-link" href="./edit">組態設定</a>
+            <a class="nav-item nav-link disabled" href="#">Help(施工中)</a>
+          </div>
+        </div>
+      </nav>
+  
+      <h6> &nbsp; </h6>
+      {%- from 'showColumn.tmpl' import show_layout -%}
+	  <form method="post" action="./container">
+        <div class="form-group">
+            <h1>Deploy Status</h1>
+        </div>
+
+          <div class="form-group row">
+        {% for key, value in containers.items() %}
+            <label class="col-sm-1 col-form-label">
+              {% if 'start' == value['status'] %}
+                <img src="{{ url_for('static', filename='img/greenBall.png') }}" width="20" height="20" class="d-inline-block" alt="@"></img>
+              {% else %}
+                <img src="{{ url_for('static', filename='img/redBall.png') }}" width="20" height="20" class="d-inline-block" alt="@"></img>
+              {% endif %}
+            </label>
+            <label class="col-sm-2 col-form-label">{{ key }}</label>
+{#-
+<!--
+            <div class="col-sm-6 btn-group">
+              {% if 'start' == value['status'] %}
+                <button type="submit" name="{{ key }}" value="start" class="btn btn-outline-success" disabled>Start</button>
+                <button type="submit" name="{{ key }}" value="stop" class="btn btn-outline-danger">Stop</button>
+              {% else %}
+                <button type="submit" name="{{ key }}" value="start" class="btn btn-outline-success">Start</button>
+                <button type="submit" name="{{ key }}" value="stop" class="btn btn-outline-danger" disabled>Stop</button>
+              {% endif %}
+            </div>
+-->
+-#}
+        {% endfor %}
+          </div>
+
+          <div class="form-group row">
+            <div class="col-sm-12 btn-group">
+              <button type="submit" name="all" value="start" class="btn btn-outline-success">Start</button>
+              <button type="submit" name="all" value="stop" class="btn btn-outline-danger">Stop</button>
+            </div>
+          </div>
+	  </form>
+
+      <h6> &nbsp; </h6>
+
+      <form>
+        <div class="form-group">
+            <h1>Running Config</h1>
+        </div>
+        {{ show_layout(layout, config) }}
+      </form>
+
+    </div>   <!-- End of Container -->
+
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="{{ url_for('static', filename='js/jquery-3.5.1.slim.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/popper.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+  </body>
+</html>
