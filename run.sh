@@ -29,8 +29,8 @@ checkNicIpReady()
 
 installRequire()
 {
-	apy update -y
-	apt install docker.io docker-compose -y
+	apt update -y
+	apt install firefox docker.io docker-compose -y
 }
 
 enableOAM()
