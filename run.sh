@@ -63,7 +63,7 @@ enableOAM()
 		services:
 		  oam:
 		    container_name: oam
-		    image: iii5gc/iiioam:1.0.2
+		    image: ${IMAGE["OAM"]}:$VERSION
 		    privileged: true
 		    networks:
 		      sbiNetwork:
@@ -79,7 +79,7 @@ enableOAM()
 		      n6Name: n6NatBridge
 		  natcontainer:
 		    container_name: natcontainer
-		    image: iii5gc/iiinat:1.0.2
+		    image: ${IMAGE["NAT"]}:$VERSION
 		    privileged: true
 		    networks:
 		      n6NatBridge:
