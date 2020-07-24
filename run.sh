@@ -14,7 +14,6 @@ rmImage()
 {
 	for NF in "OAM" "NAT" "AMF" "SMF" "PCF" "UPF"
 	do
-		echo $NF
 		docker rmi ${IMAGE[$NF]}:$VERSION
 	done
 }
@@ -44,19 +43,16 @@ checkNicIpReady()
 #	echo "create macvlan name $NN"
 ##	docker network create -d macvlan --subnet=$NatCIDR --gateway=$NGW -o parent=$NIC2 $NN
 #}
-#pullOAMImage()
-#{
-#	docker pull iii5gc/freshubuntu
-#		  testnat:
-#		    container_name: testnat
-#		    image: iii5gc/freshubuntu 
-#		    privileged: true
-#		    networks:
-#		      n6NatBridge:
-#		        ipv4_address: 10.254.254.5
-#}
+pullOAMImage()
+{
+	for NF in "OAM" "NAT" "AMF" "SMF" "PCF" "UPF"
+	do
+		docker pull ${IMAGE[$NF]}:$VERSION
+	done
+}
 installRequire()
 {
+	apt update -y
 	apt install docker.io docker-compose -y
 }
 
@@ -87,7 +83,7 @@ enableOAM()
 		    privileged: true
 		    networks:
 		      n6NatBridge:
-		        ipv4_address: 10.254.254.87
+		        ipv4_address: 10.254.254.7
 		      natNetwork:
 		        ipv4_address: $NatIp
 		    volumes:
@@ -118,7 +114,6 @@ enableOAM()
 		      driver: default
 		      config:
 		        - subnet: "10.254.254.0/24"
-		          gateway: "10.254.254.7"
 	EOF
 	docker-compose up -d
 }
@@ -202,6 +197,6 @@ else
 	checkNicIpReady
 	#createOamMacvlan
 	#createNatAndConnect
-	#pullOAMImage
+	pullOAMImage
 	enableOAM
 fi
