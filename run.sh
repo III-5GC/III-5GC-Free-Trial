@@ -41,7 +41,7 @@ if [ $NicStatus != "0" ];then
 		services:
 		  oam:
 		    container_name: oam
-		    image: iii5gc/iiioam:1.0.2
+		    image: iii5gc/iiioam:1.0.1
 		    privileged: true
 		    networks:
 		      sbiNetwork:
@@ -57,7 +57,7 @@ if [ $NicStatus != "0" ];then
 		      n6Name: n6NatBridge
 		  natcontainer:
 		    container_name: natcontainer
-		    image: iii5gc/iiinat:1.0.2
+		    image: iii5gc/iiinat:1.0.1
 		    privileged: true
 		    networks:
 		      n6NatBridge:
