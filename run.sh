@@ -1,53 +1,79 @@
 #! /bin/bash
 
-checkNicIpReady()
+VERSION="1.0.2"
+
+declare -A IMAGE
+IMAGE["OAM"]="iii5gc/iiioam"
+IMAGE["NAT"]="iii5gc/iiinat"
+IMAGE["AMF"]="iii5gc/iiiamf"
+IMAGE["SMF"]="iii5gc/iiismf"
+IMAGE["PCF"]="iii5gc/iiipcf"
+IMAGE["UPF"]="iii5gc/iiiupf"
+
+rmImage()
 {
-	temp="$NIC1 $NIC2";
-	NicStatus=1
-	for interfaceName in ${temp}
+	for NF in "OAM" "NAT" "AMF" "SMF" "PCF" "UPF"
 	do
-		if [[ -z `ip link show |grep "$interfaceName"` ]]; then
-			echo "Interface $interfaceName is not exist"
-			NicStatus=0
-			break
-		else
-			if [[ `ethtool $interfaceName|grep "Link detected:"|awk '{print $(NF)}'` == "no" ]]; then
-				echo "please enable $interfaceName"
-				NicStatus=0
-				break
-			else
-				if [[ -z `ifconfig $interfaceName|grep "inet "` ]]; then
-					echo "please setup $interfaceName's proper IP, ex: $NatIp or $OamIp"
-					NicStatus=0
-					break
-				fi
-			fi
-		fi
-		return $NicStatus 
+		echo $NF
+		docker rmi ${IMAGE[$NF]}:$VERSION
 	done
 }
 
+checkNicIpReady()
+{
+	for interfaceName in $NIC1 $NIC2
+	do
+		if [[ -z `ip link show |grep "$interfaceName"` ]]; then
+			echo "Interface $interfaceName is not exist"
+		else
+			if [[ `ethtool $interfaceName|grep "Link detected:"|awk '{print $(NF)}'` == "no" ]]; then
+				echo "please enable $interfaceName"
+			fi
+		fi
+	done
+}
+
+#createOamMacvlan()
+#{
+#	echo "create macvlan name $SN"
+##	docker network create -d macvlan --subnet=$NsbiCIDR --gateway=$sbiGW -o parent=$NIC1 $SN
+#}
+#
+#createNatAndConnect()
+#{
+#	echo "create macvlan name $NN"
+##	docker network create -d macvlan --subnet=$NatCIDR --gateway=$NGW -o parent=$NIC2 $NN
+#}
+#pullOAMImage()
+#{
+#	docker pull iii5gc/freshubuntu
+#		  testnat:
+#		    container_name: testnat
+#		    image: iii5gc/freshubuntu 
+#		    privileged: true
+#		    networks:
+#		      n6NatBridge:
+#		        ipv4_address: 10.254.254.5
+#}
 installRequire()
 {
-	apt update -y
-	apt install firefox docker.io docker-compose -y
+	apt install docker.io docker-compose -y
 }
 
 enableOAM()
 {
-if [ $NicStatus != "0" ];then
 	cat > ~/docker-compose.yml <<-EOF
 		version: '2'
 		services:
 		  oam:
 		    container_name: oam
-		    image: iii5gc/iiioam:1.0.1
+		    image: iii5gc/iiioam:1.0.2
 		    privileged: true
 		    networks:
 		      sbiNetwork:
 		        ipv4_address: $OamIp
 		    volumes:
-		      - $runPath:/home/iii
+		      - $runPath/conf:/home/iii/conf
 		      - /usr/bin/docker:/usr/bin/docker 
 		      - /var/run/docker.sock:/var/run/docker.sock
 		    environment:
@@ -57,17 +83,18 @@ if [ $NicStatus != "0" ];then
 		      n6Name: n6NatBridge
 		  natcontainer:
 		    container_name: natcontainer
-		    image: iii5gc/iiinat:1.0.1
+		    image: iii5gc/iiinat:1.0.2
 		    privileged: true
 		    networks:
 		      n6NatBridge:
-		        ipv4_address: 10.254.254.7
+		        ipv4_address: 10.254.254.87
 		      natNetwork:
 		        ipv4_address: $NatIp
 		    volumes:
 		      - /home/VEPClogs:/root/VEPClogsOnHost
 		    environment:
 		      NatIp: $NatIp
+		      NatGw: $NGW
 		networks:
 		  sbiNetwork:
 		    driver: macvlan
@@ -91,9 +118,9 @@ if [ $NicStatus != "0" ];then
 		      driver: default
 		      config:
 		        - subnet: "10.254.254.0/24"
+		          gateway: "10.254.254.7"
 	EOF
 	docker-compose up -d
-fi
 }
 
 usage()
@@ -117,6 +144,10 @@ elif [ $# -eq 1 ]; then
 						exit
 						;;
 		-k	| --killdown)		docker-compose down
+						exit
+						;;
+		-ki	| --killImage)		docker-compose down
+						rmImage
 						exit
 						;;
 	        -ln	| --list )		docker network ls
@@ -169,5 +200,8 @@ else
 	runPath=`cd ./5gc_oam; pwd`
 #	confPath=`cd ./conf; pwd`
 	checkNicIpReady
+	#createOamMacvlan
+	#createNatAndConnect
+	#pullOAMImage
 	enableOAM
 fi
