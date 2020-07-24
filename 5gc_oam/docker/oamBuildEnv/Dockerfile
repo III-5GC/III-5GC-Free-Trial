@@ -2,11 +2,6 @@ FROM ubuntu:18.04
 # VOLUME /tmp
 # MAINTAINER Chihshin 
 
-ENV TINI_VERSION v0.19.0
-ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /tini
-RUN chmod +x /tini
-ENTRYPOINT ["/tini", "-s", "--"]
-
 #Essential Tool
 RUN apt-get update -y && \
  apt-get -f install -y \
@@ -19,8 +14,6 @@ RUN apt-get update -y && \
  net-tools \
  nginx \
  psmisc \
- iputils-ping \
- tcpdump \
  vim && \
  locale-gen en_US.UTF-8
 # snmp snmpd snmp-mibs-downloader 
@@ -60,5 +53,3 @@ COPY --chown=iii ./zshrc                         /home/iii/.zshrc
 #switch path to /home/iii
 USER iii
 WORKDIR /home/iii
-
-CMD [ "/bin/bash", "-ce", "sudo -E /home/iii/runOAM.sh && ping localhost"]

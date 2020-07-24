@@ -80,6 +80,7 @@
                 <div class="dynamic-wrap-{{ key }}">
                     <input type="hidden" id="{{ key }}MaxLen" name="{{ key }}MaxLen" value="{{ config|length }}">
                     <div name="append-zone-{{ key }}">
+                        {{- add_dummy_item(key, value['data']) -}}
                         {%- for listConfig in config -%}
                             {{- show_list_item(key, value['data'], listConfig, loop.index, loop.index == config|length) -}}
                         {%- endfor -%}
@@ -149,6 +150,50 @@
 </div>
 {%- endmacro -%}
 
+{# invisible item with index 0 #}
+{%- macro add_dummy_item(key, layout) -%}
+<div class = "entry input-group" style="display:none">
+    <div class="form-group">
+        {%- for key1, value1 in layout.items() -%}
+            <label for="{{ key1 }}">{{ value1['title'] }}</label>
+            {%- if 'discription' in value1 -%}
+                <small class="form-text text-muted">{{ value1['discription'] }}</small>
+            {%- endif -%}
+
+            {%- if (('type' in value1) and ('group' == value1['type'])) -%}
+                {%- if ( ('title' in value1) and ('UE Key' == value1['title']) ) -%}
+                    {{ show_ue_key(key1, value1, "", postfix=key1 + "0") }}
+                {%- else -%}
+                    {{- show_group_column(key1, value1, "", postfix=key1 + "0") -}}
+                {%- endif -%}
+            {%- else -%}
+                {%- if ('type' in value1) and (value1['type'] == 'num') -%}
+                    <input name="{{ key1 }}0" class="form-control" type="number" value="">
+                {%- else -%}
+                    <input name="{{ key1 }}0" class="form-control" type="text" value="">
+                {%- endif -%}
+            {%- endif -%}
+
+            <div class="messages"></div>
+        {%- endfor -%}
+        <span class="input-group-btn">
+{#
+            {%- if true == last -%}
+                <button class="btn btn-success btn-add-{{ key }}" type="button">
+                    Add
+                </button>
+            {%- else -%}
+#}
+                <button class="btn btn-danger btn-remove" type="button">
+                    Remove
+                </button>
+{#
+            {%- endif -%}
+#}
+        </span>
+    </div>
+</div>
+{%- endmacro -%}
 
 {%- macro get_layout_constraints(layout) -%}
     {%- for key, value in layout.items() -%}
@@ -262,10 +307,44 @@
         var len = Number(dynaForm.find("input[name^='{{ key }}']").val());
         dynaForm.find("input[name^='{{ key }}']").val(String(len+1));
 
+        {#
         {%- for key1 in value.keys() -%}
             newEntry.find("input[name^='{{ key1 }}']").attr('name', "{{ key1 }}" + String(len+1));
         {%- endfor -%}
-        
+        #}
+
+        // update index
+        for (var i = 0;i < newEntry.find('input.form-control').length;i++) {
+            var input_fc = newEntry.find('input.form-control')[i];
+            input_fc.name = input_fc.name.slice(0, -1) + String(len+1);
+        }
+
+        // make new entry visible
+        newEntry.attr('style', '');
+
+        // set class name according to the index
+        newEntry.find('button.btn.btn-outline-secondary.dropdown-toggle.opopckey0').attr('class', 'btn btn-outline-secondary dropdown-toggle opopckey' + String(len+1));
+        newEntry.find('a.dropdown-item.opkey0').attr('class', 'dropdown-item opkey' + String(len+1));
+        newEntry.find('a.dropdown-item.opckey0').attr('class', 'dropdown-item opckey' + String(len+1));
+        newEntry.find('input.form-control.opopckey0').attr('class', 'form-control opopckey' + String(len+1));
+
+        // op opc dropdown menu dropdown menu on click
+        {%- if key == "UE_INFO" -%}
+            // switch to opc
+            $(".dropdown-menu").on('click', 'a.dropdown-item.opckey' + String(len+1), function(){
+                $(".btn.btn-outline-secondary.dropdown-toggle.opopckey" + String(len+1) + ":first-child").text($(this).text());
+                $(".btn.btn-outline-secondary.dropdown-toggle.opopckey" + String(len+1) + ":first-child").val($(this).text());
+                    $("input.form-control.opopckey" + String(len+1)).attr("name", "opckey" + String(len+1));
+            });
+            // switch to op
+            $(".dropdown-menu").on('click', 'a.dropdown-item.opkey' + String(len+1), function(){
+                $(".btn.btn-outline-secondary.dropdown-toggle.opopckey" + String(len+1) + ":first-child").text($(this).text());
+                $(".btn.btn-outline-secondary.dropdown-toggle.opopckey" + String(len+1) + ":first-child").val($(this).text());
+                $("input.form-control.opopckey" + String(len+1)).attr("name", "opkey" + String(len+1));
+            });
+        {%- endif -%}
+
+
         //.attr('name', "{{ key }}" + maxIdxAry['{{ key }}']);
         //dynaForm.find('.entry:not(:last) .btn-add-{{ key }}')
         //.removeClass('btn-add-{{ key }}').addClass('btn-remove')

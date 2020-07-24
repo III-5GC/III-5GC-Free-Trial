@@ -1,5 +1,6 @@
 import os
 import io, libconf
+import copy
 
 def writeConfig(data, filePath):
     with io.open(filePath, 'w') as f:
@@ -52,9 +53,10 @@ def genSmfConf(config):
     smfConfig['PCF_SBI_Address'] = config['NF_Address']['PCF_Address'] 
     smfConfig['UPF_N3_Address'] = config['NF_Address']['UPF_Address'] 
     smfConfig['UPF_N4_Address'] = config['NF_Address']['UPF_Address'] 
-    smfConfig['IUPF_N3_Address'] = config['NF_Address']['UPF_Address'] 
-    smfConfig['IUPF_N4_Address'] = config['NF_Address']['UPF_Address'] 
-    smfConfig['IUPF_N9_Address'] = config['NF_Address']['UPF_Address'] 
+
+    smfConfig['IUPF_N3_Address'] = config['NF_Address']['UPF_Address']
+    smfConfig['IUPF_N4_Address'] = config['NF_Address']['UPF_Address']
+    smfConfig['IUPF_N9_Address'] = config['NF_Address']['UPF_Address']
 
     smfConfig['UeList'] = list()
     for ue in config['UE_INFO']:
@@ -66,7 +68,7 @@ def genSmfConf(config):
 def genAmfConf(config):
     amfConfig = {}
     plmnConfig = {}
-    
+
     plmnConfig['PLMN'] = config['CN_Info']['PLMN']
     plmnConfig['SliceList'] = config['CN_Info']['SliceList']
 
@@ -121,18 +123,18 @@ def storeConfig(layout, config, data, index=0, postfix=''):
     return True
 
 def storeListConfig(key, layout, config, data):
-    rmAry = []
+    newAry = []
     length = len(config)
 
     for i in range(length, int(data[key + 'MaxLen'])):
-        config.append(config[0].copy())
+        config.append(copy.deepcopy(config[0]))
 
     for i in range(len(config)):
-        if (False == storeConfig(layout, config[i], data, i+1)):
-           rmAry.append(config[i])
-
-    for rmItem in rmAry:
-        config.remove(rmItem)
+        if (True == storeConfig(layout, config[i], data, i+1)):
+            newAry.append(copy.deepcopy(config[i]))
+    config.clear()
+    for ele in newAry:
+        config.append(ele)
 
 def syncNfAddr(config, containers):
     containers['AMF']['Ip'] = config['NF_Address']['AMF_Address']
