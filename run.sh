@@ -155,7 +155,7 @@ elif [ $# -eq 1 ]; then
 						exit 1
 	    esac
     done
-elif [ $# -ne 16 ]; then
+elif [ $# -ne 16 ]; then		# if combinations of key and value are not 16
 	usage
 	exit
 else
