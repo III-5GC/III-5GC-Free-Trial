@@ -25,9 +25,11 @@ checkNicIpReady()
 	do
 		if [[ -z `ip link show |grep "$interfaceName"` ]]; then
 			echo "Interface $interfaceName is not exist"
+			exit
 		else
 			if [[ `ethtool $interfaceName|grep "Link detected:"|awk '{print $(NF)}'` == "no" ]]; then
 				echo "please enable $interfaceName"
+				exit
 			fi
 		fi
 	done
