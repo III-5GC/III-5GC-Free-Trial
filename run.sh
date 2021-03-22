@@ -59,7 +59,7 @@ installRequire()
 
 enableOAM()
 {
-	cat > ~/docker-compose.yml <<-EOF
+	cat > ./docker-compose.yml <<-EOF
 		version: '2'
 		services:
 		  oam:
@@ -116,7 +116,7 @@ enableOAM()
 		      config:
 		        - subnet: "10.254.254.0/24"
 	EOF
-	docker-compose up -d
+	docker-compose up -d -f ./docker-compose.yml
 }
 
 usage()
