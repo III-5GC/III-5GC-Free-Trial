@@ -9,7 +9,7 @@ IMAGE["AMF"]="iii5gc/iiiamf"
 IMAGE["SMF"]="iii5gc/iiismf"
 IMAGE["PCF"]="iii5gc/iiipcf"
 IMAGE["UPF"]="iii5gc/iiiupf"
-IMAGE["UPF"]="iii5gc/iiinrf"
+IMAGE["NRF"]="iii5gc/iiinrf"
 
 rmImage()
 {
