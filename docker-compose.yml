@@ -1,0 +1,55 @@
+version: '2'
+services:
+  oam:
+    container_name: oam
+    image: iii5gc/iiioam:2.3.0
+    privileged: true
+    networks:
+      sbiNetwork:
+        ipv4_address: 192.168.49.11
+    volumes:
+      - /home/xk8s/III-5GC-Free-Trial/5gc_oam/conf:/home/iii/conf
+      - /usr/bin/docker:/usr/bin/docker 
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      FLASK_ENV: development
+      mountPath: /home/xk8s/III-5GC-Free-Trial/5gc_oam/conf
+      sbiName: sbiNetwork
+      n6Name: n6NatBridge
+  natcontainer:
+    container_name: natcontainer
+    image: iii5gc/iiinat:2.3.0
+    privileged: true
+    networks:
+      n6NatBridge:
+        ipv4_address: 10.254.254.7
+      natNetwork:
+        ipv4_address: 10.22.124.110
+    volumes:
+      - /home/VEPClogs:/root/VEPClogsOnHost
+    environment:
+      NatIp: 10.22.124.110
+      NatGw: 10.22.124.254
+networks:
+  sbiNetwork:
+    driver: macvlan
+    driver_opts:
+      parent: enp2s0f0
+    ipam:
+      config:
+        - subnet: "192.168.49.0/28"
+          gateway: "192.168.49.14"
+  natNetwork:
+    driver: macvlan
+    driver_opts:
+      parent: eno2
+    ipam:
+      config:
+        - subnet: "10.22.124.0/24"
+          gateway: "10.22.124.254"
+  n6NatBridge:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: "10.254.254.0/24"

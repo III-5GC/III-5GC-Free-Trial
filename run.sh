@@ -1,21 +1,31 @@
-#! /bin/bash
+#!/bin/bash
 
-VERSION="1.0.3"
+VERSION="2.3.0"
 
-declare -A IMAGE
-IMAGE["OAM"]="iii5gc/iiioam"
-IMAGE["NAT"]="iii5gc/iiinat"
-IMAGE["AMF"]="iii5gc/iiiamf"
-IMAGE["SMF"]="iii5gc/iiismf"
-IMAGE["PCF"]="iii5gc/iiipcf"
-IMAGE["UPF"]="iii5gc/iiiupf"
-IMAGE["NRF"]="iii5gc/iiinrf"
+IMAGEList=("oam" "nat" "amf" "smf" "pcf" "upf" "nrf")
+IMAGEListSize=${#IMAGEList[@]}
+
+createComponentConf()
+{
+	rm $runPath/conf/component.conf
+	for ((IMAGEIndex=2; IMAGEIndex<$IMAGEListSize; IMAGEIndex++));do
+	
+		cat >> $runPath/conf/component.conf <<- EOFComponent
+			${IMAGEList[$IMAGEIndex]^^} =
+			{
+			    Image = "iii5gc/iii${IMAGEList[$IMAGEIndex]}:$VERSION";
+			    Name = "iii${IMAGEList[$IMAGEIndex]^^}";
+			    Ip = "192.168.6.$[ $IMAGEIndex + 1]";
+			    status = "stop";
+			};
+EOFComponent
+	done
+}
 
 rmImage()
 {
-	for NF in "OAM" "NAT" "AMF" "SMF" "PCF" "UPF" "NRF"
-	do
-		docker rmi ${IMAGE[$NF]}:$VERSION
+	for ((IMAGEIndex=0; IMAGEIndex<$IMAGEListSize; IMAGEIndex++));do
+		docker rmi iii5gc/iii${IMAGEList[$IMAGEIndex]}:$VERSION
 	done
 }
 
@@ -48,11 +58,11 @@ checkNicIpReady()
 #}
 pullOAMImage()
 {
-	for NF in "OAM" "NAT" "AMF" "SMF" "PCF" "UPF" "NRF"
-	do
-		docker pull ${IMAGE[$NF]}:$VERSION
+	for ((IMAGEIndex=0; IMAGEIndex<$IMAGEListSize; IMAGEIndex++));do
+		docker pull iii5gc/iii${IMAGEList[$IMAGEIndex]}:$VERSION
 	done
 }
+
 installRequire()
 {
 	apt update -y
@@ -66,7 +76,7 @@ enableOAM()
 		services:
 		  oam:
 		    container_name: oam
-		    image: ${IMAGE["OAM"]}:$VERSION
+		    image: iii5gc/iii${IMAGEList[0]}:$VERSION
 		    privileged: true
 		    networks:
 		      sbiNetwork:
@@ -82,7 +92,7 @@ enableOAM()
 		      n6Name: n6NatBridge
 		  natcontainer:
 		    container_name: natcontainer
-		    image: ${IMAGE["NAT"]}:$VERSION
+		    image: iii5gc/iii${IMAGEList[1]}:$VERSION
 		    privileged: true
 		    networks:
 		      n6NatBridge:
@@ -118,7 +128,7 @@ enableOAM()
 		      config:
 		        - subnet: "10.254.254.0/24"
 	EOF
-	docker-compose up -d -f ./docker-compose.yml
+	docker-compose -f ./docker-compose.yml up -d 
 }
 
 usage()
@@ -198,6 +208,7 @@ else
 	runPath=`cd ./5gc_oam; pwd`
 #	confPath=`cd ./conf; pwd`
 	checkNicIpReady
+	createComponentConf
 	#createOamMacvlan
 	#createNatAndConnect
 	pullOAMImage
