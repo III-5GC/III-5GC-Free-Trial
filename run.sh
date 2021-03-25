@@ -9,11 +9,11 @@ IMAGE["AMF"]="iii5gc/iiiamf"
 IMAGE["SMF"]="iii5gc/iiismf"
 IMAGE["PCF"]="iii5gc/iiipcf"
 IMAGE["UPF"]="iii5gc/iiiupf"
-IMAGE["NRF"]="iii5gc/iiinrf"
+
 
 rmImage()
 {
-	for NF in "OAM" "NAT" "AMF" "SMF" "PCF" "UPF" "NRF"
+	for NF in "OAM" "NAT" "AMF" "SMF" "PCF" "UPF" 
 	do
 		docker rmi ${IMAGE[$NF]}:$VERSION
 	done
@@ -48,7 +48,7 @@ checkNicIpReady()
 #}
 pullOAMImage()
 {
-	for NF in "OAM" "NAT" "AMF" "SMF" "PCF" "UPF" "NRF"
+	for NF in "OAM" "NAT" "AMF" "SMF" "PCF" "UPF"
 	do
 		docker pull ${IMAGE[$NF]}:$VERSION
 	done
