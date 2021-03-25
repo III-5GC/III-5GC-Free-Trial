@@ -118,7 +118,7 @@ enableOAM()
 		      config:
 		        - subnet: "10.254.254.0/24"
 	EOF
-	docker-compose up -f ./docker-compose.yml -d 
+	docker-compose -f ./docker-compose.yml up -d 
 }
 
 usage()
