@@ -211,6 +211,6 @@ else
 	createComponentConf
 	#createOamMacvlan
 	#createNatAndConnect
-#	pullOAMImage
+	pullOAMImage
 	enableOAM
 fi
