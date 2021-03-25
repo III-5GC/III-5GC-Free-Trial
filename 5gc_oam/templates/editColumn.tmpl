@@ -74,6 +74,215 @@
         </div>
         <div id="collapse{{ key }}" class="collapse show" data-parent="#{{ key }}accordion">
             <div class="card-body">
+                <input type="hidden" id="{{ key }}MaxLen" name="{{ key }}MaxLen" value="{{ config|length }}">
+	        {%- if key == "UE_INFO" -%}
+                <table class="table table-hover" id="table{{ key }}">
+                    <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            {%- for data_key in value["data"] -%}
+			        <th scope="col">{{ value["data"][data_key]["title"] }}</th>
+                            {%- endfor -%}
+                            <th scope="col"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+		    {# dummy #}
+                    <tr style="display:none">
+                        <th scope="row" class="align-middle">0</th>
+                        {%- for data_key in value["data"] -%}
+                            {%- if data_key == "key" -%}
+			        <td class="align-middle">
+                                    {# k #}
+				    <div class="input-group mb-3">
+                                        <div class="input-group-prepend">
+                                            <button class="btn btn-outline-secondary kkey" type="button">K</button>
+                                        </div>
+                                        <input name="kkey" type="text" class="form-control" value="">
+				        <div class="messages" style=""></div>
+                                    </div>
+                                   {# op #}
+				    <div class="input-group mb-3">
+                                        <div class="input-group-prepend">
+                                                <button class="btn btn-outline-secondary dropdown-toggle opopckey" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">OP</button>
+                                            <div class="dropdown-menu">
+                                                <input type="hidden" class="opopcIdx" value="key">
+                                                <a class="dropdown-item opkey">OP</a>
+                                                <a class="dropdown-item opckey">OPC</a>
+                                            </div>
+                                        </div>
+                                            <input name="opkey" type="text" class="form-control opopckey" aria-label="Text input with dropdown button" value="">
+				            <div class="messages" style=""></div>
+                                    </div>
+
+                                </td>
+			    {%- else -%}
+			    <td class="align-middle">
+                                <input name="{{ data_key }}" class="form-control" type="text" value="">
+				<div class="messages" style=""></div>
+                            </td>
+			    {%- endif -%}
+                        {%- endfor -%}
+			<td class="align-middle">
+                            <button class="btn btn-danger btn-remove" type="button">Remove</button>
+			</td>
+                    </tr>
+                    {%- for config_element in config -%}
+                        <tr>
+                            <th scope="row" class="align-middle">{{ loop.index }}</th>
+			    {%- set outerIndex = loop.index -%}
+                            {%- for data_key in value["data"] -%}
+                            {%- if data_key == "key" -%}
+			        <td class="align-middle">
+                                {%- for key_element in config_element[data_key] -%}
+				{%- if key_element == "k" -%}
+				    <div class="input-group mb-3">
+                                        <div class="input-group-prepend">
+                                            <button class="btn btn-outline-secondary kkey{{ outerIndex }}" type="button">K</button>
+                                        </div>
+                                        <input name="kkey{{ outerIndex }}" type="text" class="form-control" value="{{ config_element[data_key][key_element] }}">
+				        <div class="messages" style=""></div>
+                                    </div>
+				{%- else -%}
+				    <div class="input-group mb-3">
+                                        <div class="input-group-prepend">
+					    {%- if key_element == "op" -%}
+                                                <button class="btn btn-outline-secondary dropdown-toggle opopckey{{ outerIndex }}" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">OP</button>
+					    {%- else -%}
+                                                <button class="btn btn-outline-secondary dropdown-toggle opopckey{{ outerIndex }}" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">OPC</button>
+					    {%- endif -%}
+                                            <div class="dropdown-menu">
+                                                <input type="hidden" class="opopcIdx" value="key{{ outerIndex }}">
+                                                <a class="dropdown-item opkey{{ outerIndex }}">OP</a>
+                                                <a class="dropdown-item opckey{{ outerIndex }}">OPC</a>
+                                            </div>
+                                        </div>
+                                        {%- if key_element == "op" -%}
+                                            <input name="opkey{{ outerIndex }}" type="text" class="form-control opopckey{{ outerIndex }}" aria-label="Text input with dropdown button" value="{{ config_element[data_key][key_element] }}">
+                                        {%- else -%}
+                                            <input name="opckey{{ outerIndex }}" type="text" class="form-control opopckey{{ outerIndex }}" aria-label="Text input with dropdown button" value="{{ config_element[data_key][key_element] }}">
+                                        {%- endif -%}
+				        <div class="messages" style=""></div>
+                                    </div>
+				{%- endif -%}
+				{%- if not loop.last -%}
+				<br>
+				{%- endif -%}
+			        {%- endfor -%}
+                                </td>
+			    {%- else -%}
+			    <td class="align-middle">
+                                <input name="{{ data_key }}{{ outerIndex }}" class="form-control" type="text" value="{{ config_element[data_key] }}">
+				<div class="messages" style=""></div>
+                            </td>
+			    {%- endif -%}
+                            {%- endfor -%}
+			    <td class="align-middle">
+                                <button class="btn btn-danger btn-remove" type="button">Remove</button>
+			    </td>
+                        </tr>
+                    {%- endfor -%}
+                    <tr>
+                        <th scope="row" class="align-middle"></th>
+                        {%- for data_key in value["data"] -%}
+                            <td class="align-middle"></td>
+                        {%- endfor -%}
+			<td class="align-middle">
+                            <button class="btn btn-success btn-add-{{ key }}" type="button">Add</button>
+			</td>
+                    </tr>
+                    </tbody>
+		    {#
+                    <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            {%- for data_key in value["data"] -%}
+                                <th scope="col">{{ value["data"][data_key]["title"] }}</th>
+                            {%- endfor -%}
+                            <th scope="col"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {%- for config_element in config -%}
+                        <tr>
+                            <th class="align-middle" scope="row">{{ loop.index }}</th>
+                            {%- for data_key in value["data"] -%}
+                                {%- if data_key == "key" -%}
+                                    <td class="align-middle">
+                                    {%- for key_element in config_element[data_key] -%}
+                                        {{ key_element ~ ": " ~ config_element[data_key][key_element] }}
+                                        <br>
+                                    {%- endfor -%}
+                                    </td>
+                                {%- else -%}
+                                    <td class="align-middle">{{ config_element[data_key] }}</td>
+                                {%- endif -%}
+                            {%- endfor -%}
+                        </tr>
+                    {%- endfor -%}
+                    </tbody>
+		    #}
+                </table>
+                {%- else -%}
+		<table class="table table-hover" id="table{{ key }}">
+                    <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            {%- for data_key in value["data"] -%}
+			        <th scope="col">{{ value["data"][data_key]["title"] }}</th>
+                            {%- endfor -%}
+                            <th scope="col"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    <tr style="display:none">
+                        <th scope="row" class="align-middle">0</th>
+                        {%- for data_key in value["data"] -%}
+			    <td class="align-middle">
+			        {%- if ("type" in value["data"][data_key]) and (value["data"][data_key]["type"] == "num") -%}
+                                    <input name="{{ data_key }}" class="form-control" type="number" value="">
+				{%- else -%}
+                                    <input name="{{ data_key }}" class="form-control" type="text" value="">
+				{%- endif -%}
+				<div class="messages" style=""></div>
+                            </td>
+                        {%- endfor -%}
+			<td class="align-middle">
+                            <button class="btn btn-danger btn-remove" type="button">Remove</button>
+			</td>
+                    </tr>
+                    {%- for config_element in config -%}
+                        <tr>
+                            <th scope="row" class="align-middle">{{ loop.index }}</th>
+			    {%- set outerIndex = loop.index -%}
+                            {%- for data_key in value["data"] -%}
+			    <td class="align-middle">
+			        {%- if ("type" in value["data"][data_key]) and (value["data"][data_key]["type"] == "num") -%}
+                                    <input name="{{ data_key }}{{ outerIndex }}" class="form-control" type="number" value="{{ config_element[data_key] }}">
+				{%- else -%}
+                                    <input name="{{ data_key }}{{ outerIndex }}" class="form-control" type="text" value="{{ config_element[data_key] }}">
+				{%- endif -%}
+				<div class="messages" style=""></div>
+                            </td>
+                            {%- endfor -%}
+			    <td class="align-middle">
+                                <button class="btn btn-danger btn-remove" type="button">Remove</button>
+			    </td>
+                        </tr>
+                    {%- endfor -%}
+                    <tr>
+                        <th scope="row" class="align-middle"></th>
+                        {%- for data_key in value["data"] -%}
+                            <td class="align-middle"></td>
+                        {%- endfor -%}
+			<td class="align-middle">
+                            <button class="btn btn-success btn-add-{{ key }}" type="button">Add</button>
+			</td>
+                    </tr>
+                    </tbody>
+                </table>
+                {%- endif -%}
+	    {#
                 {%- if 'discription' in value -%}
                     <small class="form-text text-muted">{{ value['discription'] }}</small>
                 {%- endif -%}
@@ -91,6 +300,7 @@
                         </button>
                     </span>
                 </div>
+            #}
             </div>
         </div>
     </div>
@@ -209,11 +419,18 @@
 
 {%- macro get_column_constraints(key, validate) -%}
     "{{ key }}": {
+        {{- get_colume_presence_constraints(validate) -}}
         {{- get_colume_format_constraints(validate) -}}
         {{- get_colume_length_constraints(validate) -}}
         {{- get_colume_equality_constraints(validate) -}}
         {{- get_colume_numericality_constraints(validate) -}}
     },
+{%- endmacro -%}
+
+{%- macro get_colume_presence_constraints(validate) -%}
+    {%- if 'presence' in validate -%}
+        presence: "{{ validate['presence'] }}",
+    {%- endif -%}
 {%- endmacro -%}
 
 {%- macro get_colume_format_constraints(validate) -%}
@@ -293,57 +510,76 @@
 {%- macro set_list_action(key, value) -%}
     on('click', '.btn-add-{{ key }}', function(e) {
         e.preventDefault();
-        
-        var dynaForm = $('.dynamic-wrap-{{ key }}'),
-            appendZone = dynaForm.find("div[name='append-zone-{{ key }}']"),
-            currentEntry = dynaForm.find('.entry:first'),
-            newEntry = $(currentEntry.clone()).appendTo(appendZone);
-        
-           // currentEntry = $(this).parents('.entry:first'),
-           // newEntry = $(currentEntry.clone()).appendTo(dynaForm);
 
-        newEntry.find('input').val('');
-        //newEntry.find('input').val('').attr('name', "Test" + maxIdxAry['{{ key }}']);
-        var len = Number(dynaForm.find("input[name^='{{ key }}']").val());
-        dynaForm.find("input[name^='{{ key }}']").val(String(len+1));
+	var len = $("table[id=table{{ key }}]").bootstrapTable('getData')[0].rows.length;
+        var maxLen = Number($("input[name={{ key }}MaxLen]").val());
+	//$("table[id=table{{ key }}]").bootstrapTable("append", "<tr>aaa</tr>");
 
-        {#
-        {%- for key1 in value.keys() -%}
-            newEntry.find("input[name^='{{ key1 }}']").attr('name', "{{ key1 }}" + String(len+1));
-        {%- endfor -%}
-        #}
+	// duplicate from [1]
+	var newRow = $($("table[id=table{{ key }}").bootstrapTable("getData")[0].rows[1]).clone();
 
-        // update index
-        for (var i = 0;i < newEntry.find('input.form-control').length;i++) {
-            var input_fc = newEntry.find('input.form-control')[i];
-            input_fc.name = input_fc.name.slice(0, -1) + String(len+1);
-        }
+	// update name index, use hidden value maxlen
+	newRow.attr("style", "");
+	newRow.find("th").text(String(len-2));
+	for (var i = 0;i < newRow.find("input").length;i++) {
+	    var rowInput = $(newRow.find("input")[i]);
+	    if (rowInput[0].name != "")
+	        rowInput.attr("name", rowInput[0].name + String(maxLen + 1));
+	}
+	for (var i = 0;i < newRow.find("a.dropdown-item").length;i++) {
+	    var rowDropdown = $(newRow.find("a.dropdown-item")[i]);
+	    rowDropdown.attr("class", rowDropdown[0].className + String(maxLen + 1));
+	}
+	newRow.find(".btn.btn-outline-secondary.dropdown-toggle.opopckey").attr("class", "btn btn-outline-secondary dropdown-toggle opopckey" + String(maxLen+1));
+        newRow.find("input.form-control.opopckey").attr("class", "form-control opopckey" + String(maxLen+1));
 
-        // make new entry visible
-        newEntry.attr('style', '');
+	// append new row before last element
+	$("table[id=table{{ key }}] tr:last").before(newRow);
 
-        // set class name according to the index
-        newEntry.find('button.btn.btn-outline-secondary.dropdown-toggle.opopckey0').attr('class', 'btn btn-outline-secondary dropdown-toggle opopckey' + String(len+1));
-        newEntry.find('a.dropdown-item.opkey0').attr('class', 'dropdown-item opkey' + String(len+1));
-        newEntry.find('a.dropdown-item.opckey0').attr('class', 'dropdown-item opckey' + String(len+1));
-        newEntry.find('input.form-control.opopckey0').attr('class', 'form-control opopckey' + String(len+1));
+
+        //$("table[id=table{{ key }}]").bootstrapTable("scrollTo", "bottom");
 
         // op opc dropdown menu dropdown menu on click
-        {%- if key == "UE_INFO" -%}
+        if ( "{{ key }}" == "UE_INFO" ) {
             // switch to opc
-            $(".dropdown-menu").on('click', 'a.dropdown-item.opckey' + String(len+1), function(){
-                $(".btn.btn-outline-secondary.dropdown-toggle.opopckey" + String(len+1) + ":first-child").text($(this).text());
-                $(".btn.btn-outline-secondary.dropdown-toggle.opopckey" + String(len+1) + ":first-child").val($(this).text());
-                    $("input.form-control.opopckey" + String(len+1)).attr("name", "opckey" + String(len+1));
+            $(".dropdown-menu").on('click', 'a.dropdown-item.opckey' + String(maxLen+1), function(){
+                $(".btn.btn-outline-secondary.dropdown-toggle.opopckey" + String(maxLen+1) + ":first-child").text($(this).text());
+                $(".btn.btn-outline-secondary.dropdown-toggle.opopckey" + String(maxLen+1) + ":first-child").val($(this).text());
+                    $("input.form-control.opopckey" + String(maxLen+1)).attr("name", "opckey" + String(maxLen+1));
             });
             // switch to op
-            $(".dropdown-menu").on('click', 'a.dropdown-item.opkey' + String(len+1), function(){
-                $(".btn.btn-outline-secondary.dropdown-toggle.opopckey" + String(len+1) + ":first-child").text($(this).text());
-                $(".btn.btn-outline-secondary.dropdown-toggle.opopckey" + String(len+1) + ":first-child").val($(this).text());
-                $("input.form-control.opopckey" + String(len+1)).attr("name", "opkey" + String(len+1));
+            $(".dropdown-menu").on('click', 'a.dropdown-item.opkey' + String(maxLen+1), function(){
+                $(".btn.btn-outline-secondary.dropdown-toggle.opopckey" + String(maxLen+1) + ":first-child").text($(this).text());
+                $(".btn.btn-outline-secondary.dropdown-toggle.opopckey" + String(maxLen+1) + ":first-child").val($(this).text());
+                $("input.form-control.opopckey" + String(maxLen+1)).attr("name", "opkey" + String(maxLen+1));
             });
-        {%- endif -%}
+            constraints["imsi" + String(maxLen+1)] = constraints["imsi"];
+            constraints["kkey" + String(maxLen+1)] = constraints["k"];
+            constraints["opkey" + String(maxLen+1)] = constraints["op"];
+            constraints["opckey" + String(maxLen+1)] = constraints["opc"];
+            for (var i = 0;i < newRow.find('input.form-control').length;i++) {
+                var input_fc = newRow.find('input.form-control')[i];
+                input_fc.addEventListener("change", function(ev) {
+                    var errors = validate(form, constraints) || {};
+                    showErrorsForInput(this, errors[this.name]);
+                });
+            }
+        }
 
+        if ( "{{ key }}" == "SliceList" ) {
+            constraints["Sd" + String(maxLen+1)] = constraints["Sd"];
+            constraints["Sst" + String(maxLen+1)] = constraints["Sst"];
+            for (var i = 0;i < newRow.find('input.form-control').length;i++) {
+                var input_fc = newRow.find('input.form-control')[i];
+                input_fc.addEventListener("change", function(ev) {
+                    var errors = validate(form, constraints) || {};
+                    showErrorsForInput(this, errors[this.name]);
+                });
+            }
+        }
+
+	// increase hidden value by one
+	$("input[name={{ key }}MaxLen]").val(String(maxLen + 1));
 
         //.attr('name', "{{ key }}" + maxIdxAry['{{ key }}']);
         //dynaForm.find('.entry:not(:last) .btn-add-{{ key }}')
@@ -391,6 +627,7 @@
               <input name="opc{{ postfix }}" type="text" class="form-control opopc{{ postfix }}" aria-label="Text input with dropdown button" value="{{ config['opc'] }}">
           {%- endif -%}
         </div>
+        <div class="messages"></div>
       </div>
     </div>
   </div>

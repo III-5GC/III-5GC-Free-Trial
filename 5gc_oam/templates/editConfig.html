@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.17.1/dist/bootstrap-table.min.css">
 	<link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
 	<link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
 
@@ -90,6 +91,7 @@
     <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/popper.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+    <script src="https://unpkg.com/bootstrap-table@1.17.1/dist/bootstrap-table.min.js"></script>
     <script src="{{ url_for('static', filename='js/underscore-min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/moment.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/validate.min.js') }}"></script>
@@ -103,6 +105,21 @@
                 {{ get_layout_constraints(layout) }}
             };
 
+            // add index postfix for validating group list elements
+            for (var i = 1;i <= Number($("input[name='SliceListMaxLen']").val());i++) {
+                constraints["Sd" + String(i)] = constraints["Sd"];
+                constraints["Sst" + String(i)] = constraints["Sst"];
+            }
+
+            for (var i = 1;i <= Number($("input[name='UE_INFOMaxLen']").val());i++) {
+                constraints["imsi" + String(i)] = constraints["imsi"];
+                constraints["kkey" + String(i)] = constraints["k"];
+                constraints["opkey" + String(i)] = constraints["op"];
+                constraints["opckey" + String(i)] = constraints["opc"];
+            }
+            
+
+
             // Hook up the form so we can prevent it from being posted
             var form = document.querySelector("form#main");
             form.addEventListener("submit", function(ev) {
@@ -110,7 +127,7 @@
                     ev.preventDefault();
                 }
             });
-            
+
             // 監聽 input 值改變的狀況
             var inputs = document.querySelectorAll("input, textarea, select")
             for (var i = 0; i < inputs.length; ++i) {
@@ -120,11 +137,37 @@
                 });
             }
 
+            /*
+            // 監聽 input 值改變的狀況
+            var inputs = document.querySelectorAll("input, textarea, select")
+            for (var i = 0; i < inputs.length; ++i) {
+                inputs.item(i).addEventListener("input", function(ev) {
+                    //console.log(this.name);
+                    var errors = validate(form, constraints) || {};
+                    showErrorsForInput(this, errors[this.name])
+                });
+            }
+	    */
+
             // 沒有錯誤就顯示成功傳送
             function handleFormSubmit(form, input) {
-                var errors = validate(form, constraints);// validate the form aainst the constraints
+                // remove group list elements not exist
+                var constraints_tmp = {};
+		for (var constraint in constraints) {
+		    if ($("input[name=" + constraint + "]").length != 0) {
+	                //delete constraints_tmp[constraint];
+                        constraints_tmp[constraint] = constraints[constraint];
+		    }
+		}
+                // delete hidden input
+                delete constraints_tmp["Sd"];
+                delete constraints_tmp["Sst"];
+                delete constraints_tmp["imsi"];
+
+                var errors = validate(form, constraints_tmp);// validate the form aainst the constraints
+
                 showErrors(form, errors || {}); // then we update the form to reflect the results
-                if (!errors) {
+		if (!errors) {
                     showSuccess();
                 }
                 return errors;
@@ -143,9 +186,12 @@
             // Shows the errors for a specific input
             function showErrorsForInput(input, errors) {
                 // This is the root of the input
-                var formGroup = closestParent(input.parentNode, "form-group")
+                //var formGroup = closestParent(input.parentNode, "form-group")
+                var formGroup = input.parentNode
                     // Find where the error messages will be insert into
                     , messages = formGroup.querySelector(".messages");
+		//console.log(formGroup);
+		//console.log(messages);
                 // First we remove any old messages and resets the classes
                 resetFormGroup(formGroup);
                 // If we have errors
@@ -220,9 +266,13 @@
               //  .html('Remove');
               //}).
               on('click', '.btn-remove', function(e) {
-              $(this).parents('.entry:first').remove();
-
-              e.preventDefault();
+                  e.preventDefault();
+                  var table = $(this).parents("table");
+                  $(this).parents("tr").remove();
+                  // update table index
+                  for (var i = 2;i < table.bootstrapTable("getData")[0].rows.length - 1;i++) {
+                      $(table.bootstrapTable("getData")[0].rows[i]).find("th").text(String(i-1));
+		  }
               return false;
             });            
 

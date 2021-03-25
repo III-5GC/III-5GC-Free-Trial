@@ -50,6 +50,14 @@ RUN echo 'iii ALL=(ALL:ALL) NOPASSWD:ALL' >> /etc/sudoers
 COPY --chown=iii ./oh-my-zsh                     /home/iii/.oh-my-zsh
 COPY --chown=iii ./zshrc                         /home/iii/.zshrc
 
+ADD --chown=iii ./5gc_oam   /home/iii/
 #switch path to /home/iii
 USER iii
 WORKDIR /home/iii
+
+#give an 
+ENV TINI_VERSION v0.19.0
+ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /tini
+RUN sudo chmod +x /tini
+ENTRYPOINT ["/tini", "-s", "--"]
+CMD [ "/bin/bash", "-ce", "sudo -E ./runOAM.sh && sleep infinity"]

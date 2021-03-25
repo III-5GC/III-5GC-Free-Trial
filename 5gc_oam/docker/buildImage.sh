@@ -14,7 +14,7 @@ buildImage()
     if [ "$FOLDER" != "" ] && [ -d $FOLDER ]
     then
         cd $FOLDER && \
-            docker build -t="iii/$NAME:$VERSION" .
+            docker build -t="iii5gc/$NAME:$VERSION" .
     else
         echo "Folder is mandatory argument!!"
         usage

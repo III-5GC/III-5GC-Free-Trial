@@ -59,12 +59,66 @@
         </div>
         <div id="collapse{{ key }}" class="collapse show" data-parent="#{{ key }}accordion">
             <div class="card-body">
+	        {%- if key == "UE_INFO" -%}
+	        <table class="table table-hover">
+		    <thead>
+		        <tr>
+		            <th scope="col">#</th>
+			    {%- for data_key in value["data"] -%}
+			        <th scope="col">{{ value["data"][data_key]["title"] }}</th>
+                            {%- endfor -%}
+		        </tr>
+		    </thead>
+		    <tbody>
+		    {%- for config_element in config -%}
+		        <tr>
+			    <th class="align-middle" scope="row">{{ loop.index }}</th>
+		            {%- for data_key in value["data"] -%}
+			        {%- if data_key == "key" -%}
+				    <td class="align-middle">
+				    {%- for key_element in config_element[data_key] -%}
+				        {{ key_element ~ ": " ~ config_element[data_key][key_element] }}
+					<br>
+				    {%- endfor -%}
+				    </td>
+				{%- else -%}
+                                    <td class="align-middle">{{ config_element[data_key] }}</td>
+				{%- endif -%}
+                            {%- endfor -%}
+		        </tr>
+		    {%- endfor -%}
+		    </tbody>
+		</table>
+	        {%- else -%}
+	        <table class="table table-hover">
+		    <thead>
+		        <tr>
+		            <th scope="col">#</th>
+			    {%- for data_key in value["data"] -%}
+			        <th scope="col">{{ value["data"][data_key]["title"] }}</th>
+                            {%- endfor -%}
+		        </tr>
+		    </thead>
+		    <tbody>
+		    {%- for config_element in config -%}
+		        <tr>
+			    <th scope="row">{{ loop.index }}</th>
+		            {%- for data_key in value["data"] -%}
+                                <td>{{ config_element[data_key] }}</td>
+                            {%- endfor -%}
+		        </tr>
+		    {%- endfor -%}
+		    </tbody>
+		</table>
+	        {%- endif -%}
+	        {#
                 {%- if 'discription' in value -%}
                     <small class="form-text text-muted">{{ value['discription'] }}</small>
                 {%- endif -%}
                 {%- for listConfig in config -%}
                     {{- show_layout(value['data'], listConfig) -}}
                 {%- endfor -%}
+		#}
             </div>
         </div>
     </div>
