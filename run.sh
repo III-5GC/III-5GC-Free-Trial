@@ -136,7 +136,10 @@ usage()
     echo "usage: ./OAMinit.sh [-nic1 NameOfSbiInterface ex: eth0] [-nic2 NameOfNatInterface ex: eth5] "
     echo "		      [-oamIp OamIpInNsbi ex: x.x.x.x] [-sbi sbiIpCIDR ex: x.x.x.x/x] [-sbiGw nsbiGateway ex: x.x.x.x]"
     echo "	 	      [-natIp WanIpForNat ex: x.x.x.x] [-nat natCIDR ex: x.x.x.x/x] [-natGw natGateway ex: x.x.x.x]"
-    echo "	 	      [-k killAllContainerAndNetwork] [-l listCurrentContainer] [-ln listCurrentNetowkr]"
+    echo ""
+    echo "	 	      [-k killAllContainerAndNetwork]"
+    echo "	 	      [-l listCurrentContainer]"
+    echo "	 	      [-ln listCurrentNetowkr]"
     echo "	 	      [-i installRequirement] [-h help]"
 }
 if [ $# -eq 0 ]; then
