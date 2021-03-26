@@ -20,5 +20,7 @@ def runContainer(containers, target):
 
     if 'UPF' == target:
         os.system('docker network connect --ip 10.254.254.6 ' + os.environ['n6Name'] + ' ' + containers[target]['Name'])
+        os.system('docker exec -i ' + containers[target]['Name'] + ' route del default gw 10.254.254.1')
+        os.system('docker exec -i ' + containers[target]['Name'] + ' route add default gw 10.254.254.7')
 
     print("Start ", target)
