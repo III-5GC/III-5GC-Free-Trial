@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION="f2.4.0"
+VERSION="f2.4.0-En-3"
 
 IMAGEList=("oam" "nat" "amf" "smf" "pcf" "upf" "nrf")
 IMAGEListSize=${#IMAGEList[@]}
