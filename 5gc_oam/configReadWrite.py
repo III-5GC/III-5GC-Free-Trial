@@ -94,6 +94,8 @@ def genPcfConf(config):
     pcfConfig['NRF_SBI_Address'] = config['CN_Info']['PCF_Info']['NRF_SBI_Address']
     pcfConfig['NRF_SBI_Port'] = config['CN_Info']['PCF_Info']['NRF_SBI_Port']
 
+    pcfConfig['QosDataList'] = config['CN_Info']['PCF_Info']['QosDataList']
+
     pcfConfig['UeList'] = list()
     for ue in config['UE_INFO']:
         pcfConfig['UeList'].append({'imsi':ue['imsi']})
@@ -137,13 +139,16 @@ def genSmfConf(config):
 
     smfConfig['Test_Paging'] = config['CN_Info']['SMF_Info']['Test_Paging']
 
-    smfConfig['AmfSbiList'] = config['CN_Info']['SMF_Info']['AmfSbiList']
+    smfConfig['Check_Allowed_AMF'] = config['CN_Info']['SMF_Info']['Check_Allowed_AMF']
+    smfConfig['AllowedAmfList'] = config['CN_Info']['SMF_Info']['AllowedAmfList']
 
     smfConfig['UpfList'] = config['CN_Info']['SMF_Info']['UpfList']
 
     smfConfig['NRF_SBI_Address'] = config['CN_Info']['SMF_Info']['NRF_SBI_Address']
     smfConfig['NRF_SBI_Port'] = config['CN_Info']['SMF_Info']['NRF_SBI_Port']
     smfConfig['Discover_Interval'] = config['CN_Info']['SMF_Info']['Discover_Interval']
+    smfConfig['First_Discover_Delay'] = config['CN_Info']['SMF_Info']['First_Discover_Delay']
+    smfConfig['NF_Discover_Method'] = config['CN_Info']['SMF_Info']['NF_Discover_Method']
 
     smfConfig['UeList'] = list()
     for ue in config['UE_INFO']:
@@ -163,7 +168,6 @@ def genAmfConf(config):
     amfConfig['PLMN_SupportList'].append(plmnConfig)
     amfConfig['PLMN_SupportList'] = tuple(amfConfig['PLMN_SupportList'])
 
-    amfConfig['AMF_Name'] = config['CN_Info']['AMF_Info']['AMF_Name']
     amfConfig['AMF_Region_ID'] = config['CN_Info']['AMF_Info']['AMF_Region_ID']
     amfConfig['AMF_Set_ID'] = config['CN_Info']['AMF_Info']['AMF_Set_ID']
     amfConfig['AMF_Pointer'] = config['CN_Info']['AMF_Info']['AMF_Pointer']
@@ -215,6 +219,7 @@ def genAmfConf(config):
 
     amfConfig['Overload_Check'] = config['CN_Info']['AMF_Info']['Overload_Check']
     amfConfig['Overload_Check_Interval'] = config['CN_Info']['AMF_Info']['Overload_Check_Interval']
+    amfConfig['NF_Discover_Method'] = config['CN_Info']['AMF_Info']['NF_Discover_Method']
 
     writeConfig(amfConfig, 'conf/amf.conf')
 
