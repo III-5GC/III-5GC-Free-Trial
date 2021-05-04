@@ -1,6 +1,6 @@
 #! /bin/bash
 
-VERSION="1.0.3"
+VERSION="f2.4.0-En-3"
 
 declare -A IMAGE
 IMAGE["OAM"]="iii5gc/iiioam"
